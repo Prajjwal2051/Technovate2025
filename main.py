@@ -1,7 +1,51 @@
-class TechnovateChatbot:
+from abc import ABC, abstractmethod
+from datetime import datetime
+
+# ----------------- Abstract Base Class -----------------
+class FestivalBot(ABC):
+    @abstractmethod
+    def greet(self): pass
+
+    @abstractmethod
+    def handle_query(self, query): pass
+
+    @abstractmethod
+    def show_schedule(self, day): pass
+
+
+# ----------------- Derived Class: TechnovateBot -----------------
+class TechnovateBot(FestivalBot):
     def __init__(self):
-        self.theme_2025 = "the theme will be inserted here"
-        self.commands = {
+        # Encapsulated Data
+        self.__schedule = {
+            "day 1": {
+                "10:30": "Opening Ceremony (Auditorium)",
+                "12:00": "Mic Mania (Auditorium)",
+                "15:00": "Singing (Auditorium)",
+                "16:00": "Nukkad Natak (Parking Area), Hackathon Begins",
+                "16:30": "Cricket (Ground near BALCO)",
+                "18:00": "Badminton (Sports Complex), Table Tennis (Gym), Volleyball (Court), Basketball (Sports Complex), Football (Football Ground)"
+            },
+            "day 2": {
+                "09:00": "Hackathon Continues",
+                "11:00": "Quiz Runner (Room 121)",
+                "12:00": "Groovify (Auditorium)",
+                "15:00": "Group Dance (Auditorium), ComicCon (Palm Park)",
+                "16:30": "Cricket (Ground near BALCO)",
+                "18:00": "Badminton (Sports Complex), Table Tennis (Gym), Volleyball (Court), Basketball (Sports Complex), Football (Football Ground)"
+            },
+            "day 3": {
+                "10:00": "Fiducia – Preliminary Round (Auditorium)",
+                "11:00": "Coding Speedrun (Network Lab)",
+                "12:00": "Fiducia – Final Round (Auditorium)",
+                "16:30": "Cricket (Ground near BALCO)",
+                "18:00": "Badminton (Sports Complex), Table Tennis (Gym), Volleyball (Court), Basketball (Sports Complex), Football (Football Ground)",
+                "20:00": "Artist Night – Seedhe Maut Live Performance"
+            }
+        }
+
+        self.__theme_2025 = "Innovation and Collaboration Redefined"
+        self.__commands = {
             "what is technovate": self.about_technovate,
             "theme for 2025": self.theme,
             "team required": self.team_requirement,
@@ -17,95 +61,133 @@ class TechnovateChatbot:
             "last year theme": self.previous_theme,
             "celebrity guests": self.celeb_guests,
             "sponsors": self.past_sponsors,
-            "help": self.help_info,
-            "opening ceremony": self.opening_ceremony
+            "help": self.__help
         }
-        self.greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"]
-    
-    def chat(self):
-        print("Bot 🤖: Hey there! I’m your friendly Technovate Bot. Ask me anything about our college fest!")
-        while True:
-            query = input("\nYou: ").lower().strip()
-            if query in ["exit", "quit", "bye"]:
-                print("Bot 🤖: Goodbye! See you at Technovate 🎉")
+
+    def greet(self):
+        print("\n🎉 Welcome to Technovate 6.0 Bot! Ask me anything about the event schedule, day-wise or time-wise.")
+        print("Type 'help' for suggestions or 'exit' to quit.")
+
+    def handle_query(self, query):
+        query = query.lower().strip()
+        for key in self.__commands:
+            if key in query:
+                self.__commands[key]()
+                return
+
+        if "day" in query and any(char.isdigit() for char in query):
+            self.__handle_day_time_query(query)
+        else:
+            print("Bot: Hmm, I didn't catch that. Try asking like 'What's on Day 2 at 3 PM?' or type 'help'.")
+
+    def show_schedule(self, day):
+        schedule = self.__schedule.get(day, {})
+        if not schedule:
+            print("Bot: Sorry, I don’t have events listed for that day.")
+            return
+        for time, event in schedule.items():
+            print(f"🕒 {time} – {event}")
+
+    def __handle_day_time_query(self, query):
+        day = ""
+        for d in ["day 1", "day 2", "day 3"]:
+            if d in query:
+                day = d
                 break
 
-            if query in self.greetings:
-                print("Bot 🤖: Hello! 😊 How can I help you today?")
-                continue
+        time = self.__extract_time(query)
 
-            found = False
-            for key in self.commands:
-                if key in query:
-                    self.commands[key]()
-                    found = True
-                    break
-            if not found:
-                print("Bot 🤖: Hmm... I didn’t quite catch that. Try asking something else or type 'help' for options.")
+        if not day:
+            print("Bot: Please mention a valid day (Day 1, Day 2, Day 3).")
+            return
 
+        if not time:
+            print(f"Bot: Here's everything on {day.title()}:")
+            self.show_schedule(day)
+            return
+
+        event = self.__schedule.get(day, {}).get(time)
+        if event:
+            print(f"Bot: At {time} on {day.title()}, you’ll find:\n👉 {event}")
+        else:
+            print(f"Bot: Hmm, no event exactly at {time} on {day.title()}. Here's what we have that day:")
+            self.show_schedule(day)
+
+    def __extract_time(self, text):
+        text = text.replace("pm", " PM").replace("am", " AM")
+        for word in text.split():
+            try:
+                return datetime.strptime(word, "%I%p").strftime("%H:00")
+            except:
+                pass
+            try:
+                return datetime.strptime(word, "%I:%M%p").strftime("%H:%M")
+            except:
+                pass
+        return None
+
+    def __help(self):
+        print("Bot: You can ask me things like:")
+        print("- 'What's happening on Day 2?'\n- 'Events at 4:30 PM on Day 3?'\n- 'Schedule for Day 1 at 6 PM'\n- 'Day 3 full schedule'\n- 'Theme for 2025?'\n- 'Technical events?' etc.")
+
+    # ------------------- FAQ Functions -------------------
     def about_technovate(self):
-        print("Bot 🤖: Technovate is our college’s annual tech-cultural fest, blending tech events with cultural performances.")
+        print("Bot: Technovate is our college’s annual tech-cultural fest, blending tech events with cultural performances.")
 
     def theme(self):
-        print(f"Bot 🤖: Yes! This year’s theme is “{self.theme_2025}” — celebrating innovation, creativity, and collaboration.")
+        print(f"Bot: Yes! This year’s theme is \"{self.__theme_2025}\" — celebrating innovation, creativity, and collaboration.")
 
     def team_requirement(self):
-        print("Bot 🤖: Some events are solo, while others need teams of 2–4. Check event pages for more info.")
+        print("Bot: Some events are solo, while others need teams of 2–4. Check event pages for details.")
 
     def tech_events(self):
-        print("Bot 🤖: We’ve got hackathons, coding contests, robotics challenges, IoT expos, and tech quizzes!")
+        print("Bot: We’ve got hackathons, coding contests, robotics challenges, IoT expos, and tech quizzes!")
 
     def cultural_events(self):
-        print("Bot 🤖: You can enjoy dance battles, band performances, fashion shows, open mic nights, and drama competitions!")
+        print("Bot: Dance battles, band performances, fashion shows, open mic nights, and drama competitions await!")
 
     def open_stage(self):
-        print("Bot 🤖: Totally! The Open Mic Stage is perfect for singers, poets, and performers. Registration opens soon!")
+        print("Bot: Yes! Our Open Mic Stage welcomes singers, poets, and performers. Registrations opening soon!")
 
     def external_participation(self):
-        print("Bot 🤖: Yes, many cultural events are open to people from outside our college. Just check the event rules.")
+        print("Bot: Yes, many cultural events are open to participants from outside our college. Check event rules.")
 
     def registration_info(self):
-        print("Bot 🤖: Register through our official website under the 'Register' section. Fest passes and individual event options are available.")
+        print("Bot: You can register on our official website under the 'Register' section. Fest passes and event-wise options are available.")
 
     def event_registration(self):
-        print("Bot 🤖: Yep! You'll need to register separately for each event you'd like to attend.")
+        print("Bot: Yes, you need to register separately for each event you want to attend.")
 
     def accommodation_info(self):
-        print("Bot 🤖: Outstation participants can get hostel accommodation at a small charge. Info is on the 'Stay' section.")
+        print("Bot: Outstation participants can get hostel accommodation for a nominal charge. Check the 'Stay' section.")
 
     def food_info(self):
-        print("Bot 🤖: Food? We got you! Canteens, food stalls, and a dedicated food court will be available during the fest!")
+        print("Bot: Yes, food stalls, canteens, and a food court will be active during the fest!")
 
     def contact_info(self):
-        print("Bot 🤖: You can always talk to me or check the 'Contact Us' page for reaching coordinators or support.")
+        print("Bot: You can talk to this bot or visit the 'Contact Us' page for event coordinators and support.")
 
     def previous_theme(self):
-        print("Bot 🤖: The theme for Technovate 2024 was “Beyond Boundaries” — all about limitless innovation!")
+        print("Bot: Technovate 2024’s theme was ‘Beyond Boundaries’, celebrating limitless innovation and imagination.")
 
     def celeb_guests(self):
-        print("Bot 🤖: Past guests include Samay Raina and Seedhe Maut! We always aim to bring in exciting names.")
+        print("Bot: In past editions, we’ve had Samay Raina and Seedhe Maut perform or speak at the event.")
 
     def past_sponsors(self):
-        print("Bot 🤖: We’ve had sponsors like Jungle Safari support us in earlier editions of Technovate.")
+        print("Bot: Yes! We’ve been sponsored by brands like Jungle Safari in past editions.")
 
-    def help_info(self):
-        print("Bot 🤖: You can ask about events, how to register, food, accommodation, previous themes, and more!")
 
-    def opening_ceremony(self):
-        print("""
-Bot 🤖: Here's the Opening Ceremony Schedule for Technovate 6.0 (21st March, Day 1):
---------------------------------------------------
-🕥 10:30 AM - Commencement of Opening Ceremony  
-🪔 10:30 AM – 10:35 AM - Lighting of the Lamp  
-🎵 10:35 AM – 10:40 AM - Saraswati Vandana  
-🎤 10:40 AM – 10:45 AM - Speech by Dean Academics & Registrar  
-📋 10:45 AM – 10:50 AM - Program Overview by Faculty Coordinator  
-🎙 10:50 AM – 10:55 AM - Speech by Student Coordinator  
-🙏 10:55 AM – 11:00 AM - Vote of Thanks by SAC President  
-💃 11:00 AM – 11:10 AM - Flashmob by Students  
-✅ 11:10 AM – 11:15 AM - Conclusion of Opening Ceremony
-        """)
+# ----------------- Run the Chatbot -----------------
+def run_chatbot():
+    bot = TechnovateBot()
+    bot.greet()
+    while True:
+        user_input = input("\nYou: ")
+        if user_input.lower() in ["exit", "quit", "bye"]:
+            print("Bot: Goodbye! Enjoy Technovate 6.0 🌟")
+            break
+        bot.handle_query(user_input)
+
 
 if __name__ == "__main__":
-    bot = TechnovateChatbot()
-    bot.chat()
+    run_chatbot()
