@@ -1,4 +1,4 @@
-# this is the chat-bot program for the Technovate event
+# This is the chat-bot program for the Technovate event
 
 class TechnovateChatbot:
     def __init__(self):
@@ -23,7 +23,8 @@ class TechnovateChatbot:
         }
 
     def chat(self):
-        print("Hey, I am the Technovate Bot. Ask me anything about our college fest.")
+        print("Bot: Hey! I am the Technovate Bot 🤖")
+        print("Ask me anything about our college fest!")
         while True:
             query = input("\nYou: ").lower().strip()
             if query in ["exit", "quit", "bye"]:
@@ -42,7 +43,7 @@ class TechnovateChatbot:
         print("Bot: Technovate is our college’s annual tech-cultural fest, blending tech events with cultural performances.")
 
     def theme(self):
-        print(f'Bot: Yes! This year’s theme is "{self.theme_2025}" — celebrating innovation, creativity, and collaboration.')
+        print(f"Bot: Yes! This year’s theme is \"{self.theme_2025}\" — celebrating innovation, creativity, and collaboration.")
 
     def team_requirement(self):
         print("Bot: Some events are solo, while others need teams of 2–4. Check event pages for details.")
@@ -75,7 +76,7 @@ class TechnovateChatbot:
         print("Bot: You can talk to this bot or visit the 'Contact Us' page for event coordinators and support.")
 
     def previous_theme(self):
-        print("Bot: Technovate 2024’s theme was 'Beyond Boundaries', celebrating limitless innovation and imagination.")
+        print("Bot: Technovate 2024’s theme was \"Beyond Boundaries\", celebrating limitless innovation and imagination.")
 
     def celeb_guests(self):
         print("Bot: In past editions, we’ve had Samay Raina and Seedhe Maut perform or speak at the event.")
@@ -86,8 +87,6 @@ class TechnovateChatbot:
     def help_info(self):
         print("Bot: You can ask about 'theme for 2025', 'technical events', 'how to register', 'accommodation', and more!")
 
-
-# run the chatbot
 if __name__ == "__main__":
     bot = TechnovateChatbot()
     bot.chat()
