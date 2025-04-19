@@ -1,5 +1,17 @@
+import utils.net
+import utils.clients
+import utils.http_session
+import utils.transport
+import utils.session
 from abc import ABC, abstractmethod
 from datetime import datetime
+import pyttsx3
+
+# creating the engine for the voice
+engine = pyttsx3.init()
+engine.setProperty('rate', 160)  # You can adjust the speaking speed
+engine.setProperty('voice', engine.getProperty('voices')[0].id)  # Choose the default voice
+
 
 # ----------------- Abstract Base Class -----------------
 class FestivalBot(ABC):
@@ -64,9 +76,15 @@ class TechnovateBot(FestivalBot):
             "help": self.__help
         }
 
+    def speak(self, text):
+        """Converts the given text to speech."""
+        engine.say(text)
+        engine.runAndWait()
+
     def greet(self):
-        print("\n🎉 Welcome to Technovate 6.0 Bot! Ask me anything about the event schedule, day-wise or time-wise.")
-        print("Type 'help' for suggestions or 'exit' to quit.")
+        message = "\n🎉 Welcome to Technovate 6.0 Bot! Ask me anything about the event schedule, day-wise or time-wise. Type 'help' for suggestions or 'exit' to quit."
+        print(message)
+        self.speak("Welcome to Technovate 6.0 Bot! Ask me anything about the event schedule, day-wise or time-wise. Type help for suggestions or exit to quit.")
 
     def handle_query(self, query):
         query = query.lower().strip()
@@ -78,15 +96,21 @@ class TechnovateBot(FestivalBot):
         if "day" in query and any(char.isdigit() for char in query):
             self.__handle_day_time_query(query)
         else:
-            print("Bot: Hmm, I didn't catch that. Try asking like 'What's on Day 2 at 3 PM?' or type 'help'.")
+            response = "Hmm, I didn't catch that. Try asking like 'What's on Day 2 at 3 PM?' or type 'help'."
+            print(f"Bot: {response}")
+            self.speak(response)
 
     def show_schedule(self, day):
         schedule = self.__schedule.get(day, {})
         if not schedule:
-            print("Bot: Sorry, I don’t have events listed for that day.")
+            response = "Sorry, I don’t have events listed for that day."
+            print(f"Bot: {response}")
+            self.speak(response)
             return
         for time, event in schedule.items():
-            print(f"🕒 {time} – {event}")
+            message = f"🕒 {time} – {event}"
+            print(message)
+            self.speak(message)
 
     def __handle_day_time_query(self, query):
         day = ""
@@ -98,19 +122,27 @@ class TechnovateBot(FestivalBot):
         time = self.__extract_time(query)
 
         if not day:
-            print("Bot: Please mention a valid day (Day 1, Day 2, Day 3).")
+            response = "Please mention a valid day (Day 1, Day 2, Day 3)."
+            print(f"Bot: {response}")
+            self.speak(response)
             return
 
         if not time:
-            print(f"Bot: Here's everything on {day.title()}:")
+            response = f"Here's everything on {day.title()}:"
+            print(f"Bot: {response}")
+            self.speak(response)
             self.show_schedule(day)
             return
 
         event = self.__schedule.get(day, {}).get(time)
         if event:
-            print(f"Bot: At {time} on {day.title()}, you’ll find:\n👉 {event}")
+            response = f"At {time} on {day.title()}, you’ll find:\n👉 {event}"
+            print(f"Bot: {response}")
+            self.speak(response)
         else:
-            print(f"Bot: Hmm, no event exactly at {time} on {day.title()}. Here's what we have that day:")
+            response = f"Hmm, no event exactly at {time} on {day.title()}. Here's what we have that day:"
+            print(f"Bot: {response}")
+            self.speak(response)
             self.show_schedule(day)
 
     def __extract_time(self, text):
@@ -127,15 +159,28 @@ class TechnovateBot(FestivalBot):
         return None
 
     def __help(self):
-        print("Bot: You can ask me things like:")
-        print("- 'What's happening on Day 2?'\n- 'Events at 4:30 PM on Day 3?'\n- 'Schedule for Day 1 at 6 PM'\n- 'Day 3 full schedule'\n- 'Theme for 2025?'\n- 'Technical events?' etc.")
+        message = (
+            "You can ask me things like:\n"
+            "- 'What's happening on Day 2?'\n"
+            "- 'Events at 4:30 PM on Day 3?'\n"
+            "- 'Schedule for Day 1 at 6 PM'\n"
+            "- 'Day 3 full schedule'\n"
+            "- 'Theme for 2025?'\n"
+            "- 'Technical events?' etc."
+        )
+        print(f"Bot: {message}")
+        self.speak("You can ask me things like: What's happening on Day 2? Events at 4:30 PM on Day 3? Schedule for Day 1 at 6 PM, or Day 3 full schedule.")
 
     # ------------------- FAQ Functions -------------------
     def about_technovate(self):
-        print("Bot: Technovate is our college’s annual tech-cultural fest, blending tech events with cultural performances.")
+        response = "Technovate is our college’s annual tech-cultural fest, blending tech events with cultural performances."
+        print(f"Bot: {response}")
+        self.speak(response)
 
     def theme(self):
-        print(f"Bot: Yes! This year’s theme is \"{self.__theme_2025}\" — celebrating innovation, creativity, and collaboration.")
+        response = f"Yes! This year’s theme is \"{self.__theme_2025}\" — celebrating innovation, creativity, and collaboration."
+        print(f"Bot: {response}")
+        self.speak(response)
 
     def team_requirement(self):
         print("Bot: Some events are solo, while others need teams of 2–4. Check event pages for details.")
@@ -184,9 +229,13 @@ def run_chatbot():
     while True:
         user_input = input("\nYou: ")
         if user_input.lower() in ["exit", "quit", "bye"]:
-            print("Bot: Goodbye! Enjoy Technovate 6.0 🌟")
+            farewell = "Goodbye! Enjoy Technovate 6.0 🌟"
+            print(f"Bot: {farewell}")
+            bot.speak(farewell)
             break
         bot.handle_query(user_input)
+
+
 
 
 if __name__ == "__main__":
